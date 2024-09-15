@@ -82,6 +82,53 @@
             text-decoration: underline;
         }
 
+        /* New styles for file upload/download */
+        .file-management {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #2e2e2e;
+            border-radius: 10px;
+        }
+
+        .file-management h2 {
+            color: #f0c674;
+        }
+
+        .file-management input[type="file"] {
+            margin: 20px 0;
+        }
+
+        .file-management button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4b8b3b;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .file-management button:hover {
+            background-color: #5a9c4f;
+        }
+
+        .file-management ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .file-management ul li {
+            margin: 10px 0;
+        }
+
+        .file-management ul li a {
+            color: #81a2be;
+            text-decoration: none;
+        }
+
+        .file-management ul li a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -167,7 +214,57 @@
         <li><a href="#">Tapochek</a></li>
     </ul>
 
+    <!-- New File Management Section -->
+    <div class="file-management">
+        <h2>File Upload and Download</h2>
+        <input type="file" id="fileInput" />
+        <button onclick="uploadFile()">Upload File</button>
+        
+        <h3>Available Files:</h3>
+        <ul id="fileList"></ul>
+    </div>
+
 </div>
+
+<script>
+    // Function to handle file upload
+    function uploadFile() {
+        const fileInput = document.getElementById('fileInput');
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+
+        fetch('/upload', {  // Replace with your server endpoint
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+            console.log('File uploaded successfully:', data);
+            fetchFileList(); // Refresh file list after upload
+        })
+        .catch(error => console.error('Error uploading file:', error));
+    }
+
+    // Function to fetch and display the list of files
+    function fetchFileList() {
+        fetch('/files') // Replace with your server endpoint
+            .then(response => response.json())
+            .then(files => {
+                const fileList = document.getElementById('fileList');
+                fileList.innerHTML = '';
+                files.forEach(file => {
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `<a href="/download/${file}" download>${file}</a>`;
+                    fileList.appendChild(listItem);
+                });
+            })
+            .catch(error => console.error('Error fetching file list:', error));
+    }
+
+    // Fetch file list on page load
+    document.addEventListener('DOMContentLoaded', fetchFileList);
+</script>
 
 </body>
 </html>
